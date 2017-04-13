@@ -4,7 +4,7 @@ var cheerio = require('cheerio'); 	//parse HTML elements
 var URL = require('url-parse');		//parse URL
 
 /* Fetching and parsing a web page in Javascript */
-var pageToVisit = "52.89.243.4";
+var pageToVisit = "http://52.89.243.4";
 console.log("Visiting page " + pageToVisit);
 request(pageToVisit, function(err, res, body){
 	if(err){
