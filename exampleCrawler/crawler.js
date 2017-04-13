@@ -17,7 +17,7 @@ request(pageToVisit, function(err, res, body){
 		var $ = cheerio.load(body);
 		console.log("Page title: " + $('title').text());
 	}
-};
+});
 
 
 
