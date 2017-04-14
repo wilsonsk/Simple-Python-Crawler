@@ -25,7 +25,6 @@ pagesToVisit.push(START_URL);
 crawl();
 
 /*** START: FUNCTIONS ***/
-
 /* START: API to webcrawl- encapsulates remaining functions */
 function crawl(){
 	if(numPagesVisited >= MAX_PAGES_TO_VISIT){
