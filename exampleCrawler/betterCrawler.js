@@ -3,7 +3,12 @@ var request = require('request');	//make HTML requests
 var cheerio = require('cheerio'); 	//parse HTML elements
 var URL = require('url-parse');		//parse URL
 var fs = require('fs');
+var mongo = require('mongodb').MongoClient;
 /* END: Libraries */
+
+/* START: mongodb URL */
+var mongodbURL = 'mongodb://127.0.0.1/webcrawler';
+/* END: mongodb URL */
 
 /* USER CONSTANT VARIABLES */
 var START_URL = "http://www.arstechnica.com";
@@ -127,7 +132,12 @@ function collectInternalLinks($, pageObj){
 		//console.log("link: " + $(this).attr('href'));
 	});
 	fs.appendFileSync("crawlObj.txt", 'Request Time: ' + pageObj.requestTime + '\n' + 'Page Title: ' + pageObj.title + '\n' + 'URL: ' + pageObj.url + '\n' + 'Number of Links: ' + pageObj.numLinks + '\n' + 'Links: ' + pageObj.links + '\n');
-
+	mongo.connect(mongodbURL, function(err, db){
+		if(err){ throw err; }
+		var col = db.collection('pageObjects');
+		col.insert({page_requestTime: pageObj.requestTime, page_title: pageObj.title, page_url: pageObj.url, page_num_links: pageObj.numLinks, page_links: pageObj.links});		
+	db.close();
+	});
 
 	/*
 	//jquery- a tag with href starting with 'http' for absolute paths
