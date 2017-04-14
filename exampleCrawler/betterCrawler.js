@@ -49,6 +49,7 @@ function crawl(){
 /* START: visit webpage- parse and search, callback crawl() until SEARCH_WORD is found */
 //callback in this case will be the crawl()
 function visitPage(url, callback){
+	var startTime = new Date().getTime();
 	//add webpage to set
 	pagesVisited[url] = true;
 	numPagesVisited++;
@@ -67,13 +68,22 @@ function visitPage(url, callback){
 			return;	
 		}
 		
+		var pageObject = {};
+		pageObject.links = [];
+
+		var endTime = new Date().getTime();
+		var requestTime = endTime - startTime;
+		pageObject.requestTime = requestTime;
+
 		//status code is good- start parsing DOM
 		var $ = cheerio.load(body);
+		pageObject.title = $('title').text();
+		pageObject.url = url;
 		var isWordFound = searchForWord($, SEARCH_WORD);
 		if(isWordFound){
 			console.log('Word: ' + SEARCH_WORD + ' found at webpage: ' + url);
 		}else{
-			collectInternalLinks($);
+			collectInternalLinks($, pageObject);
 			callback();
 		}
 	});
@@ -101,7 +111,7 @@ function searchForWord($, word){
 //following code will collect relative and absolute hyperlinks
 
 //collect links function
-function collectInternalLinks($){
+function collectInternalLinks($, pageObj){
 	//var allRelativeLinks = [];
 	//var allAbsoluteLinks = [];
 
@@ -109,12 +119,14 @@ function collectInternalLinks($){
 	var relativeLinks = $("a[href^='/']");
 	//jquery- .each() iterates over a jquery object, executing a function for each matched element
 	//console.log("Found " + allRelativeLinks.length + " relative links");
+	pageObj.numLinks = relativeLinks.length;
 	console.log("Found " + relativeLinks.length + " relative links on webpage");
 	relativeLinks.each(function(){
+		pageObj.links.push(baseURL + $(this).attr('href'));
 		pagesToVisit.push(baseURL + $(this).attr('href'));
 		//console.log("link: " + $(this).attr('href'));
-		fs.appendFileSync('webcrawlResults.txt', $(this).attr('href') + '\n');
 	});
+	fs.appendFileSync("crawlObj.txt", 'Request Time: ' + pageObj.requestTime + '\n' + 'Page Title: ' + pageObj.title + '\n' + 'URL: ' + pageObj.url + '\n' + 'Number of Links: ' + pageObj.numLinks + '\n' + 'Links: ' + pageObj.links + '\n');
 
 
 	/*
