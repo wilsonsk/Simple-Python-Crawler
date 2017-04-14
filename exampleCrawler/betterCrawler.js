@@ -5,8 +5,8 @@ var URL = require('url-parse');		//parse URL
 /* END: Libraries */
 
 /* USER CONSTANT VARIABLES */
-var START_URL = "http://52.89.243.4";
-var SEARCH_WORD = "Realty";
+var START_URL = "http://www.arstechnica.com";
+var SEARCH_WORD = "stemming";
 var MAX_PAGES_TO_VISIT = 10;
 
 
@@ -21,8 +21,10 @@ var pagesToVisit = [];
 var url = new URL(START_URL);
 var baseURL = url.protocol + "//" + url.hostname;
 
+/* START: run webcrawler API */
 pagesToVisit.push(START_URL);
 crawl();
+/* END: run webcrawler API */
 
 /*** START: FUNCTIONS ***/
 /* START: API to webcrawl- encapsulates remaining functions */
@@ -86,11 +88,7 @@ function searchForWord($, word){
 
 	//use js function indexof to check for occurences of a substring in a given string - NOTE: indexof is case sensitive, so convert both the search word and the webpage to either lower or uppercase
 
-	if(bodyText.toLowerCase().indexOf(word.toLowerCase()) !== -1){
-		return true;
-	}else{
-		return false;
-	}
+	return(bodyText.toLowerCase().indexOf(word.toLowerCase()) !== -1);
 }
 /*END: parse page to search for keyword */
 
@@ -103,15 +101,17 @@ function searchForWord($, word){
 
 //collect links function
 function collectInternalLinks($){
-	var allRelativeLinks = [];
-	var allAbsoluteLinks = [];
+	//var allRelativeLinks = [];
+	//var allAbsoluteLinks = [];
 
 	//jquery- a tag with href starting with '/' for relative paths
 	var relativeLinks = $("a[href^='/']");
 	//jquery- .each() iterates over a jquery object, executing a function for each matched element
-	console.log("Found " + allRelativeLinks.length + " relative links");
+	//console.log("Found " + allRelativeLinks.length + " relative links");
+	console.log("Found " + relativeLinks.length + " relative links on webpage");
 	relativeLinks.each(function(){
-		allRelativeLinks.push($(this).attr('href'));
+		pagesToVisit.push(baseURL + $(this).attr('href'));
+		console.log("link: " + $(this).attr('href'));
 	});
 
 
