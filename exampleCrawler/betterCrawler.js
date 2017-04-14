@@ -2,6 +2,7 @@
 var request = require('request');	//make HTML requests
 var cheerio = require('cheerio'); 	//parse HTML elements
 var URL = require('url-parse');		//parse URL
+var fs = require('fs');
 /* END: Libraries */
 
 /* USER CONSTANT VARIABLES */
@@ -111,7 +112,8 @@ function collectInternalLinks($){
 	console.log("Found " + relativeLinks.length + " relative links on webpage");
 	relativeLinks.each(function(){
 		pagesToVisit.push(baseURL + $(this).attr('href'));
-		console.log("link: " + $(this).attr('href'));
+		//console.log("link: " + $(this).attr('href'));
+		fs.appendFileSync('webcrawlResults.txt', $(this).attr('href') + '\n');
 	});
 
 
