@@ -24,26 +24,6 @@ var baseURL = url.protocol + "//" + url.hostname;
 pagesToVisit.push(START_URL);
 crawl();
 
-/* START: Webcrawl (Fetching and parsing a webpage in Javascript) */
-console.log("Visiting page " + START_URL);
-
-//request to visit page, then execute a callback after we get response
-request(START_URL, function(err, res, body){
-	if(err){
-		console.log("Error: " + err);
-	}
-	//Check status code
-	console.log("Status code: " + res.statusCode);
-	if(res.statusCode === 200){
-		//status code is good- being parsing DOM
-		var $ = cheerio.load(body);
-		console.log("Page title: " + $('title').text());
-	}
-});
-/* END: Webcrawl (Fetching and parsing a webpage in Javascript) */
-
-
-
 /*** START: FUNCTIONS ***/
 
 /* START: API to webcrawl- encapsulates remaining functions */
