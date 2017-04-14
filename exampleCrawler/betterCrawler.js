@@ -54,8 +54,8 @@ function visitPage(url, callback){
 
 
 	//request to visit page, then execute a callback after we get response
-	console.log("Visiting page: " + START_URL);
-	request(START_URL, function(err, res, body){
+	console.log("Visiting page: " + url);
+	request(url, function(err, res, body){
 		if(err){
 			console.log("Error: " + err);
 		}
