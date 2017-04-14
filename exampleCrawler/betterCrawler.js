@@ -6,7 +6,7 @@ var URL = require('url-parse');		//parse URL
 
 /* USER CONSTANT VARIABLES */
 var START_URL = "http://52.89.243.4";
-var SEARCH_WORD = "estate";
+var SEARCH_WORD = "Realty";
 var MAX_PAGES_TO_VISIT = 10;
 
 
@@ -20,6 +20,9 @@ var pagesToVisit = [];
 /* URL initialization */
 var url = new URL(START_URL);
 var baseURL = url.protocol + "//" + url.hostname;
+
+pagesToVisit.push(START_URL);
+crawl();
 
 /* START: Webcrawl (Fetching and parsing a webpage in Javascript) */
 console.log("Visiting page " + START_URL);
@@ -42,6 +45,26 @@ request(START_URL, function(err, res, body){
 
 
 /*** START: FUNCTIONS ***/
+
+/* START: API to webcrawl- encapsulates remaining functions */
+function crawl(){
+	if(numPagesVisited >= MAX_PAGES_TO_VISIT){
+		console.log("Reached max number of webpages to visit");
+		return;
+	}
+
+	var nextPage = pagesToVisit.pop();
+	if(nextPage in pagesVisited){
+		//already visited this page- repeat crawl
+		crawl();
+	}else{
+		visitPage(nextPage, crawl);
+	}
+}
+/* END: API to webcrawl- encapsulates remaining functions */
+
+
+/* START: visit webpage- parse and search, callback crawl() until SEARCH_WORD is found */
 //callback in this case will be the crawl()
 function visitPage(url, callback){
 	//add webpage to set
@@ -49,21 +72,32 @@ function visitPage(url, callback){
 	numPagesVisited++;
 
 
-//request to visit page, then execute a callback after we get response
-	console.log("Visiting page " + START_URL);
+	//request to visit page, then execute a callback after we get response
+	console.log("Visiting page: " + START_URL);
 	request(START_URL, function(err, res, body){
 		if(err){
 			console.log("Error: " + err);
 		}
 		//Check status code
 		console.log("Status code: " + res.statusCode);
-		if(res.statusCode === 200){
-			//status code is good- being parsing DOM
-			var $ = cheerio.load(body);
-			console.log("Page title: " + $('title').text());
+		if(res.statusCode !== 200){
+			callback();
+			return;	
 		}
-});
+		
+		//status code is good- start parsing DOM
+		var $ = cheerio.load(body);
+		var isWordFound = searchForWord($, SEARCH_WORD);
+		if(isWordFound){
+			console.log('Word: ' + SEARCH_WORD + ' found at webpage: ' + url);
+		}else{
+			collectInternalLinks($);
+			callback();
+		}
+	});
 }
+/* END: visit webpage- parse and search, callback crawl() until SEARCH_WORD is found */
+
 
 /* START: parse page to search for keyword */
 //search function
@@ -96,17 +130,20 @@ function collectInternalLinks($){
 	//jquery- a tag with href starting with '/' for relative paths
 	var relativeLinks = $("a[href^='/']");
 	//jquery- .each() iterates over a jquery object, executing a function for each matched element
+	console.log("Found " + allRelativeLinks.length + " relative links");
 	relativeLinks.each(function(){
 		allRelativeLinks.push($(this).attr('href'));
 	});
 
+
+	/*
 	//jquery- a tag with href starting with 'http' for absolute paths
 	absoluteLinks.each(function(){
 		allAbsoluteLinks.push($(this).attr('href'));
 	});	
-	
-	console.log("Found " + allRelativeLinks.length + " relative links");
-	console.log("Found " + allAbsoluteLinks.length + " absolute links");
+	*/	
+
+	//console.log("Found " + allAbsoluteLinks.length + " absolute links");
 }
 /* END: collecting links on a webpage in JS */
 
